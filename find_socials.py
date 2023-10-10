@@ -47,7 +47,7 @@ def search_twitter_profile():
                 company_name = row[1] if row[1] else ""
                 keywords = row[2] if row[2] else ""
 
-                query = f"{company_name} {ceo_name} {keywords} Twitter account"
+                query = f"{company_name} CEO {keywords} Twitter"
                 query = query.replace(" ", "%20")
 
                 search_url = f"https://www.google.com/search?q={query}"
@@ -62,29 +62,25 @@ def search_twitter_profile():
                 soup = BeautifulSoup(page_source, "html.parser")
                 search_results = soup.find_all('a', href=True)  # Find all anchor tags with href attribute
 
-                for row in input_sheet.iter_rows(min_row=2, values_only=True):
-    # ... (Các phần mã khác)
+                twitter_links = []  # Danh sách các liên kết Twitter cho từng dòng
 
-                    twitter_links = []  # Danh sách các liên kết Twitter cho từng dòng
+                for result in search_results:
+                    link = result['href']
+                    if 'twitter.com' in link and '/status/' not in link and 'translate' not in link and 'login' not in link and 'search' not in link:
+                        twitter_links.append(link)
 
-                    for result in search_results:
-                        link = result['href']
-                        if 'twitter.com' in link:
-                            twitter_links.append(link)
+                # Thêm danh sách liên kết Twitter vào dòng đầu ra
+                if twitter_links:
+                    for twitter_link in twitter_links:
+                        output_sheet.append([ceo_name, company_name, keywords, twitter_link])
+                else:
+                    # Nếu không có liên kết Twitter, thêm một dòng với thông báo "No Twitter links found."
+                    output_sheet.append([ceo_name, company_name, keywords, "No Twitter links found."])
 
-                    # Thêm danh sách liên kết Twitter vào dòng đầu ra
-                    if twitter_links:
-                        for twitter_link in twitter_links:
-                            output_sheet.append([ceo_name, company_name, keywords, twitter_link])
-                    else:
-        # Nếu không có liên kết Twitter, thêm một dòng với thông báo "No Twitter links found."
-                        output_sheet.append([ceo_name, company_name, keywords, "No Twitter links found."])
         # Save the output workbook with the Twitter profiles for each row
         output_file_path = "output_twitter_file.xlsx"
         output_workbook.save(output_file_path)
         status_label.config(text=f"Output saved to: {output_file_path}")
-
-
 
     except Exception as e:
         status_label.config(text="Error occurred while processing the Excel file.")
