@@ -1,10 +1,16 @@
-# bot_find_socials
-Find Twitter and Facebook accounts. 
+Hướng dẫn cách sử dụng :
 
-# Instruction
+B1: vào link https://github.com/botsamqntdata/bot_find_socials
 
-1. Tải thư mục về 
-2. build -> exe.win-amd64-3.10 -> find_socials.exe 
-3. Run the application. Input the input excel file and run it. To prevent google from detecting that you are running a script, input and run the data by batches. For example, 30-40 profiles in each run, whatever amount that does not trigger the bot detection. 
-4. It will generate the Twitter and/or Facebook excel sheet which contains the link to the CEO's social media accounts. 
-5. You are advised to manually check the links as not all CEOs have social media accounts. Some are fake accounts set up by other users. 
+B2: Vào thư mục Build chọn vào exe.win-amd64-3.10.rar , ở góc phía bên phải có icon tải xuống
+
+B3: Sao khi tải về giải nén file rar , mở file đã được giải nén ra và chạy tệp exe find_socials
+
+B4: Sau khi thấy giao diện trên thì chọn Browser để thêm file input đầu vào và chọn mạng xã hội muốn truy vấn
+
+~cách tải file input nếu chưa có:
+
+Vào link: https://github.com/botsamqntdata/bot_find_socials/blob/main/input.xlsx -> ở giữa màn hình click vào View raw hoặc nút tải về bên phải để tải về file input -> thêm file input vào chung thư mục với tệp find_socials.exe -> sửa đổi thông tin file input theo ý muốn
+
+
+chỉ nhập tài khoản và mật khẩu vào 2 ô dưới nếu dùng find linkedin 

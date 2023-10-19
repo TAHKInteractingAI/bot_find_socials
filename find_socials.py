@@ -69,7 +69,7 @@ def search_twitter_profile():
                 driver.quit()
 
                 soup = BeautifulSoup(page_source, "html.parser")
-                search_results = soup.find_all('a', href=True)  # Find all anchor tags with href attribute
+                search_results = soup.find_all('a', href=True) 
 
                 twitter_links = []  # List of Twitter links for each row
 
@@ -274,8 +274,8 @@ def search_facebook_profile():
 
 def search_linkedin_profile():
     input_file_path = file_entry.get()
-    email = 'dtrinhb3@gmail.com'  # Sử dụng tên người dùng mặc định
-    password = 'Trinhquang2001@'  # Sử dụng mật khẩu mặc định
+    email = email_entry.get() 
+    password = password_entry.get()
     linkedin_data = []
 
     try:
@@ -409,6 +409,27 @@ file_entry.pack(side="left", padx=10, pady=5)
 
 file_button = tk.Button(file_frame, text="Browser", command=select_file)
 file_button.pack(side="left", padx=10, pady=5)
+
+
+
+
+# ... (Previous code remains unchanged)
+
+email_label = tk.Label(main_frame, text="Nhập account linkedin(Nếu dùng find linkedin):", font=("Arial", 12))
+email_label.pack(padx=10, pady=5)
+
+email_entry = tk.Entry(main_frame, width=40)
+email_entry.pack(padx=10, pady=5)
+
+password_label = tk.Label(main_frame, text="Nhập password linkedin(Nếu dùng find linkedin):", font=("Arial", 12))
+password_label.pack(padx=10, pady=5)
+
+password_entry = tk.Entry(main_frame, show="*", width=40)
+password_entry.pack(padx=10, pady=5)
+
+# ... (Rest of the code remains unchanged)
+
+
 
 # create the status label
 status_label = tk.Label(main_frame, text="", font=("Arial", 12))
