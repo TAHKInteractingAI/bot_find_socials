@@ -1,6 +1,8 @@
 # bot_find_socials
 Find Linkedin, Twitter and Facebook accounts.
 <<<<<<< HEAD Hướng dẫn cách sử dụng :
+Chuẩn bị file input.xlsx có 3 cột CEO Name, Company Name, Keyword
+Đưa tên công ty cần tìm vào cột Company Name
 
 B1: vào link https://github.com/botsamqntdata/bot_find_socials
 
