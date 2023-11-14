@@ -1,13 +1,10 @@
 # bot_find_socials
 Find Linkedin, Twitter and Facebook accounts.
 <<<<<<< HEAD Hướng dẫn cách sử dụng :
-Chuẩn bị file input.xlsx có 3 cột CEO Name, Company Name, Keyword
-Đưa tên công ty cần tìm vào cột Company Name
 
-B1: vào link https://github.com/botsamqntdata/bot_find_socials
 
-B2: Vào thư mục Build chọn vào exe.win-amd64-3.10.rar , ở góc phía bên phải có icon tải xuống
+B1: Tải source ở trên về và giải nén ra, mở file excel add tên công ty cần tìm vào cột Company Name, add từ khóa cần tìm vào cột Key Valuant: ví dụ: CEO,Founder
 
-B3: Chạy tệp exe find_socials
+B2: Vào thư mục Build chọn vào exe.win-amd64-3.9, Run file find_socials.exe
 
-B4: Sau khi thấy giao diện trên thì chọn Browser để thêm file input đầu vào và chọn mạng xã hội muốn truy vấn
+B3: chọn Browser để upload file excel đã chuẩn bị ở bước 1 lên tool, sau đó nhấn chọn Linkedin, Twitter, Facebook theo nhu cầu cần tìm loại nào
