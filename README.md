@@ -1,8 +1,8 @@
 # bot_find_socials
 Find Linkedin, Twitter and Facebook accounts.<br>
 <<<<<<< HEAD Hướng dẫn cách sử dụng :<br>
+<strong>ĐỂ CHO NHANH, ĐỪNG CLONE VỀ, CHỈ DOWNLOAD TOOL, vì tool khoảng hơn 200MB</strong>
 <br>
-<strong>ĐỂ CHO NHANH, ĐỪNG CLONE VỀ, CHỈ DOWNLOAD TOOL</strong>
 <br>
 B1: Tool được lấy trong file zip trong thư mục build, rồi chọn Download Zip và giải nén ra, mở file excel add tên công ty cần tìm vào cột Company Name, thêm từ khóa tương ứng (Ở đây sử dụng "CEO"), add từ khóa cần tìm vào cột Key Valuant: ví dụ: CEO,Foundr. Hoặc để đơn giản, sử dụng file <b>input.xlsx</b> trong repo và chuẩn bị dữ liệu theo như file. <br>
 <br>
