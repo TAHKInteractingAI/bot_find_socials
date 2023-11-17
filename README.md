@@ -4,7 +4,7 @@ Find Linkedin, Twitter and Facebook accounts.<br>
 <strong>Tool là file <i>find_socials.exe</i> trong thư mục <code>dist</code>, hoặc có thể tải trực tiếp bằng <a href="https://drive.google.com/file/d/1WF5Olthd0qimgfHVq20MRG8B7ecHAlgF/view?usp=sharing">Link download </a></strong>
 <br>
 <br>
-- B1: Mở file excel add tên công ty cần tìm vào cột Company Name, thêm từ khóa tương ứng (Ở đây sử dụng "CEO"), add từ khóa cần tìm vào cột Key Valuant: ví dụ: CEO,Foundr. Hoặc để đơn giản, sử dụng file <b>input.xlsx</b> trong repo và chuẩn bị dữ liệu theo như file.
+- B1: Sử dụng file <b>input.xlsx</b> trong repo và chuẩn bị dữ liệu theo như file : cột Company Name add tên công ty cần tìm vào , cột Key Valuant add từ khóa tương ứng (Ở đây sử dụng "CEO") cần tìm vào : ví dụ: CEO,Founder. 
 
 ![image](https://github.com/TAHKInteractingAI/bot_find_socials/assets/79317931/f7ba4585-eb3c-4883-b097-68d5be580c57)
 
