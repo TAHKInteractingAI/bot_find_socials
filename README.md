@@ -10,6 +10,7 @@ Find Linkedin, Twitter and Facebook accounts.<br>
 
 <br>
 - B2: Run file <b>find_socials.exe</b>
+
 ![image](https://github.com/TAHKInteractingAI/bot_find_socials/assets/79317931/43478069-de03-4bdb-bf34-b37dc6155d15)
 
 <br>
