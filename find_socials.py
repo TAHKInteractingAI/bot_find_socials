@@ -5,7 +5,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from openpyxl import Workbook, load_workbook
 from bs4 import BeautifulSoup
-import openpyxl
 import tkinter as tk
 from tkinter import filedialog
 import re
@@ -16,19 +15,6 @@ import g4f
 g4f.debug.logging = True  # Enable logging
 g4f.check_version = False  # Disable automatic version checking
 import re
-
-from g4f.Provider import (
-    AItianhu,
-    Aichat,
-    Bard,
-    Bing,
-    ChatBase,
-    ChatgptAi,
-    OpenaiChat,
-    Vercel,
-    You,
-    Yqcloud,
-)
 import spacy
 
 
@@ -47,7 +33,6 @@ def select_file():
 def search_twitter_profile():
     input_file_path = file_entry.get()
     twitter_data = []
-
     try:
         # Export the data to a new Excel file
         input_workbook = load_workbook(input_file_path, read_only=True)
@@ -65,10 +50,14 @@ def search_twitter_profile():
         for row in input_sheet.iter_rows(min_row=3, values_only=True):
             i = i + 1
             print("{}".format(i))
+
             if any(cell_value is not None and cell_value != "" for cell_value in row):
                 ceo_name = row[0] if row[0] else ""
+
                 company_name = row[1] if row[1] else ""
+
                 keywords = row[2] if row[2] else ""
+
                 ceo_name = ""
                 while not ceo_name:
                     query = f"{keywords} of {company_name} "
@@ -76,15 +65,22 @@ def search_twitter_profile():
                     search_url = f"https://www.google.com/search?q={query}"
                     driver.get(search_url)
                     time.sleep(5)
+
                     soup = BeautifulSoup(driver.page_source, "html.parser")
+
                     text = soup.get_text()
+
                     element = driver.find_element(
                         By.CSS_SELECTOR, "div.eqAnXb > div#search"
                     )
+
                     element_html = element.get_attribute("outerHTML")
+
                     soup = BeautifulSoup(element_html, "html.parser")
+
                     text = soup.get_text(strip=True)
                     org = f"The {keywords} of ABCDXYX is Metraclac Kousier"
+
                     response = g4f.ChatCompletion.create(
                         model="gpt-3.5-turbo",
                         provider=g4f.Provider.You,
@@ -96,18 +92,27 @@ def search_twitter_profile():
                         ],
                         stream=True,
                     )
+                    print(type(response))
 
+                    print("real")
                     for message in response:
                         ceo_name += message
+                    print("real")
                     # Using regular expression to extract the name after "is"
                     ceo_name = "".join(ceo_name).replace("*", "")
+                    print("real")
                     match = re.search(r'is\s+([^"]+)', ceo_name)
+                    print("real")
                     if match:
                         ceo_name = match.group(1)
+
                     ceo_name = ceo_name[:-1] if ceo_name.endswith(".") else ceo_name
+
                     nlp = spacy.load("en_core_web_sm")
+
                     # Process the text with SpaCy
                     doc = nlp(ceo_name)
+
                     # Extract person names
                     ceo_name = [ent.text for ent in doc.ents if ent.label_ == "PERSON"]
 
@@ -338,7 +343,7 @@ def search_facebook_profile():
                     search_url = f"https://www.google.com/search?q={query}"
                     driver.get(search_url)
                     time.sleep(5)
-                    driver.find_element(By.TAG_NAME, "body").send_keys(Keys.END)
+                    # driver.find_element(By.TAG_NAME, "body").send_keys(Keys.END)
                     facebook_links = []
                     name_facebook = []
                     search_results = driver.find_elements(
