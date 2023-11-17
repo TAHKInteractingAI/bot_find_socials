@@ -10,5 +10,8 @@ B1: Mở file excel add tên công ty cần tìm vào cột Company Name, thêm 
 
 <br>
 B2: Run file <b>find_socials.exe</b><br>
+
+![image](https://github.com/TAHKInteractingAI/bot_find_socials/assets/79317931/43478069-de03-4bdb-bf34-b37dc6155d15)
+
 <br>
 B3: Chọn Browser để upload file excel đã chuẩn bị ở bước 1 lên tool, sau đó nhấn chọn Linkedin, Twitter, Facebook theo nhu cầu<br>
