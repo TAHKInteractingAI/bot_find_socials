@@ -1,42 +1,17 @@
-<<<<<<< HEAD
-Hướng dẫn cách sử dụng :
+# bot_find_socials
+Find Linkedin, Twitter and Facebook accounts.<br>
+<<<<<<< HEAD Hướng dẫn cách sử dụng :<br>
+<strong>Tool là file <i>find_socials.exe</i> trong thư mục <code>dist</code>, hoặc có thể tải trực tiếp bằng <a href="https://drive.google.com/file/d/1WF5Olthd0qimgfHVq20MRG8B7ecHAlgF/view?usp=sharing">Link download </a></strong>
+<br>
+<br>
+- B1: Sử dụng file <b>input.xlsx</b> trong repo và chuẩn bị dữ liệu theo như file : cột Company Name add tên công ty cần tìm vào , cột Key Valuant add từ khóa tương ứng (Ở đây sử dụng "CEO") cần tìm vào : ví dụ: CEO,Founder. 
 
-B1: vào link https://github.com/botsamqntdata/bot_find_socials
+![image](https://github.com/TAHKInteractingAI/bot_find_socials/assets/79317931/f7ba4585-eb3c-4883-b097-68d5be580c57)
 
-B2: Vào thư mục Build chọn vào exe.win-amd64-3.10.rar , ở góc phía bên phải có icon tải xuống
+<br>
+- B2: Run file <b>find_socials.exe</b>
 
-B3: Sao khi tải về giải nén file rar , mở file đã được giải nén ra và chạy tệp exe find_socials
+![image](https://github.com/TAHKInteractingAI/bot_find_socials/assets/79317931/43478069-de03-4bdb-bf34-b37dc6155d15)
 
-B4: Sau khi thấy giao diện trên thì chọn Browser để thêm file input đầu vào và chọn mạng xã hội muốn truy vấn
-
-~cách tải file input nếu chưa có:
-
-Vào link: https://github.com/botsamqntdata/bot_find_socials/blob/main/input.xlsx -> ở giữa màn hình click vào View raw hoặc nút tải về bên phải để tải về file input -> thêm file input vào chung thư mục với tệp find_socials.exe -> sửa đổi thông tin file input theo ý muốn
-
-
-chỉ nhập tài khoản và mật khẩu vào 2 ô dưới nếu dùng find linkedin 
-=======
-Hướng dẫn cách sử dụng : 
-
-
-B1: vào link https://github.com/botsamqntdata/bot_find_socials 
-
-
-B2: Vào thư mục Build chọn vào exe.win-amd64-3.10.rar , ở góc phía bên phải có icon tải xuống 
-
-
-B3: Sao khi tải về giải nén file rar , mở file đã được giải nén ra và chạy tệp exe find_socials 
-
-
-B4: Sau khi thấy giao diện trên thì chọn Browser để thêm file input đầu vào và chọn mạng xã hội muốn truy vấn 
-
-
-
-
-~cách tải file input nếu chưa có: 
-
-
-Vào link: https://github.com/botsamqntdata/bot_find_socials/blob/main/input.xlsx -> ở giữa màn hình click vào View raw hoặc nút tải về bên phải để tải về file input -> thêm file input vào chung thư mục với tệp find_socials.exe -> sửa đổi thông tin file input theo ý muốn 
-
-
->>>>>>> c636ce1c33e59afd1489a6ba1f472a93a8ad2ee2
+<br>
+- B3: Chọn Browser để upload file excel đã chuẩn bị ở bước 1 lên tool, sau đó nhấn chọn Linkedin, Twitter, Facebook theo nhu cầu<br>

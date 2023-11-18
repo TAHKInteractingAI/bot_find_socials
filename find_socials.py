@@ -3,27 +3,25 @@ from tkinter import filedialog
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from openpyxl import Workbook, load_workbook
 from bs4 import BeautifulSoup
-import openpyxl
 import tkinter as tk
 from tkinter import filedialog
-import undetected_chromedriver as uc
 import re
-import os
 import json
 import time
+import g4f
 
-
+g4f.debug.logging = True  # Enable logging
+g4f.check_version = False  # Disable automatic version checking
+import re
+import spacy
 
 
 def clean_input(input_str):
     # Loại bỏ các ký tự đặc biệt, chỉ giữ lại ký tự chữ cái và dấu cách
-    cleaned_str = re.sub(r'[^a-zA-Z\s]', '', input_str)
+    cleaned_str = re.sub(r"[^a-zA-Z\s]", "", input_str)
     return cleaned_str
-
 
 
 def select_file():
@@ -31,346 +29,615 @@ def select_file():
     file_entry.delete(0, tk.END)
     file_entry.insert(0, file_path)
 
+
 def search_twitter_profile():
+    input_file_path = file_entry.get()
+    twitter_data = []
     try:
-        # Load the input Excel file
-        input_file_path = file_entry.get()
-
-        # Open the input workbook and get the first sheet
-        input_workbook = openpyxl.load_workbook(input_file_path)
+        # Export the data to a new Excel file
+        input_workbook = load_workbook(input_file_path, read_only=True)
         input_sheet = input_workbook.active
+        driver = webdriver.Chrome()
+        driver.get("https://www.google.com")
+        time.sleep(5)
+        lan = driver.find_element(By.XPATH, "/html/body/div[1]/div[4]/div/div/a[1]")
+        if lan.text == "English":
+            driver.get(lan.get_attribute("href"))
+        # Create a list to store data in JSON format
+        json_data = []
+        i = 0
 
-        # Create a new workbook for the output file
-        output_workbook = openpyxl.Workbook()
-        output_sheet = output_workbook.active
+        for row in input_sheet.iter_rows(min_row=3, values_only=True):
+            i = i + 1
+            print("{}".format(i))
 
-        # output_sheet.append(["CEO Name", "Company Name", "Keywords", "Results"])
-
-        # Create a list to store Twitter data
-        twitter_data = []
-
-        # Loop through each row in the input sheet
-        for row in input_sheet.iter_rows(min_row=2, values_only=True):
             if any(cell_value is not None and cell_value != "" for cell_value in row):
                 ceo_name = row[0] if row[0] else ""
+
                 company_name = row[1] if row[1] else ""
+
                 keywords = row[2] if row[2] else ""
 
-                query = f"{company_name} CEO {keywords} Twitter"
-                query = query.replace(" ", "%20")
+                ceo_name = ""
+                while not ceo_name:
+                    query = f"{keywords} of {company_name} "
+                    query = query.replace(" ", "%20")
+                    search_url = f"https://www.google.com/search?q={query}"
+                    driver.get(search_url)
+                    time.sleep(5)
 
-                search_url = f"https://www.google.com/search?q={query}"
+                    soup = BeautifulSoup(driver.page_source, "html.parser")
 
-                # Use regular Chrome WebDriver
-                driver = webdriver.Chrome()
-                driver.get(search_url)
-                driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
-                page_source = driver.page_source
-                driver.quit()
+                    text = soup.get_text()
 
-                soup = BeautifulSoup(page_source, "html.parser")
-                search_results = soup.find_all('a', href=True) 
+                    element = driver.find_element(
+                        By.CSS_SELECTOR, "div.eqAnXb > div#search"
+                    )
 
-                twitter_links = []  # List of Twitter links for each row
+                    element_html = element.get_attribute("outerHTML")
 
-                for result in search_results:
-                    link = result['href']
-                    if 'twitter.com' in link and '/status/' not in link and 'translate' not in link and 'login' not in link and 'search' not in link:
-                        twitter_links.append(link)
+                    soup = BeautifulSoup(element_html, "html.parser")
 
-                # Unique Twitter links
-                unique_twitter_links = list(set(twitter_links))
+                    text = soup.get_text(strip=True)
+                    org = f"The {keywords} of ABCDXYX is Metraclac Kousier"
 
-                # Use a new Chrome WebDriver
-                driver = webdriver.Chrome()
+                    response = g4f.ChatCompletion.create(
+                        model="gpt-3.5-turbo",
+                        provider=g4f.Provider.You,
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": f"I will give you a some text about a {keywords} of a company.This is the text :BEGIN: {text[:500]} :END. According the given text, your answer should be just the real {keywords} name,  your answer format answer will be :{org}, no more explain. ",
+                            }
+                        ],
+                        stream=True,
+                    )
+                    print(type(response))
 
-                # Loop through each Twitter link
-                for twitter_link in unique_twitter_links:
-                    # Access the Twitter link
-                    driver.get(twitter_link)
-                    
-                    # Wait for a moment to ensure the Twitter page is fully loaded
-                    driver.implicitly_wait(10)
+                    print("real")
+                    for message in response:
+                        ceo_name += message
+                    print("real")
+                    # Using regular expression to extract the name after "is"
+                    ceo_name = "".join(ceo_name).replace("*", "")
+                    print("real")
+                    match = re.search(r'is\s+([^"]+)', ceo_name)
+                    print("real")
+                    if match:
+                        ceo_name = match.group(1)
 
-                    # Example: Get CEO name using XPath
-                    ceo_xpath = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/div/div/div[2]/div[1]/div/div[1]/div/div/span/span[1]"
-                    try:
-                        ceo_element = driver.find_element(By.XPATH, ceo_xpath)
-                        ceo_name = ceo_element.text
-                    except:
-                        ceo_name = "N/A"
+                    ceo_name = ceo_name[:-1] if ceo_name.endswith(".") else ceo_name
 
-                    job_xpath ='/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/div/div/div[3]/div/div/span'
-                    try:
-                        job_element = driver.find_element(By.XPATH, job_xpath)
-                        job = job_element.text
-                    except:
-                        job = "N/A"
-                    followers='/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/div/div/div[5]/div[2]/a'
-                    try:
-                        fl_element = driver.find_element(By.XPATH,followers)
-                        follower = fl_element.text
-                    except:
-                        follower ="N/A"
-                    location_xpath = '/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/div/div/div[4]/div/span[1]/span/span'
-                    try:
-                        loca_element = driver.find_element(By.XPATH,location_xpath)
-                        location = loca_element.text
-                    except:
-                        location = "N/A"
-                    # Add Twitter data to the list
-                    twitter_data.append({"CEO Name": ceo_name, 
-                                         "Company Name": company_name, 
-                                         "Keywords": keywords, 
-                                         "Twitter Link": twitter_link ,
-                                         "Job_title": job ,
-                                         "Followers": follower,
-                                         "Location":location
-                                         })
+                    nlp = spacy.load("en_core_web_sm")
 
-                # Close the browser when finished with this row
-                driver.quit()
+                    # Process the text with SpaCy
+                    doc = nlp(ceo_name)
 
-        # Save the Twitter data to a JSON file
-        json_file_path = "output_twitter_file.json"
+                    # Extract person names
+                    ceo_name = [ent.text for ent in doc.ents if ent.label_ == "PERSON"]
+
+                ceo_name = "".join(ceo_name).strip()
+
+                if "not" in ceo_name:
+                    ceo_name = f"{keywords} not found"
+                    json_data.append(
+                        {
+                            "Name": ceo_name,
+                            "Company Name": company_name,
+                            "Keywords": keywords,
+                            "Twitter Profile": "No Twitter links found.",
+                        }
+                    )
+                else:
+                    query = f"Twitter {ceo_name} {keywords} of {company_name}"
+                    query = query.replace(" ", "%20")
+                    search_url = f"https://www.google.com/search?q={query}"
+                    driver.get(search_url)
+                    time.sleep(5)
+                    driver.find_element(By.TAG_NAME, "body").send_keys(Keys.END)
+                    twitter_links = []
+                    name_twitter = []
+                    search_results = driver.find_elements(
+                        By.CSS_SELECTOR, "div.v7W49e > div"
+                    )
+                    time.sleep(5)
+                    element = driver.find_element(
+                        By.CSS_SELECTOR, "div.eqAnXb > div#search"
+                    )
+
+                    # Get the HTML content of the element
+                    element_html = element.get_attribute("outerHTML")
+                    soup = BeautifulSoup(element_html, "html.parser")
+                    element_ = soup.find_all("div", jscontroller="SC7lYd")
+                    # Extract the text or HTML of the element
+                    if element_:
+                        for element in element_:
+                            # Or get the HTML of the element
+                            html_inside_element = (
+                                element.prettify()
+                            )  # This retains the HTML structure
+                            soup = BeautifulSoup(html_inside_element, "html.parser")
+                            a_tag = soup.find("a")  # Find the <a> tag
+                            if a_tag is not None:
+                                link = a_tag.get("href")
+
+                            h3_tag = soup.find("h3")  # Find the <a> tag
+                            if h3_tag is not None:
+                                name = h3_tag.get_text()
+                                # Get the value of the href attribute
+                                # link = soup.find_all("a", href=True)[0]
+                                # print(len(link))
+                                # name = soup.find_all("h3").text
+                                # print(len(name))
+
+                                if (
+                                    "twitter.com" in link
+                                    and "/status/" not in link
+                                    and "/post/" not in link
+                                    and "/posts/" not in link
+                                    and "post" not in link
+                                    and "posts" not in link
+                                    and "story" not in link
+                                    and "news" not in link
+                                    and "job" not in link
+                                    and "today" not in link
+                                    and "author" not in link
+                                    and "pulse" not in link
+                                    and "company" not in link
+                                    and "text" not in link
+                                    and "translate" not in link
+                                    and "login" not in link
+                                    and "search" not in link
+                                    and any(word in name for word in ceo_name.split())
+                                ):
+                                    print(link, name)
+                                    twitter_links.append(link)
+                                    ceo_name = name.split("-")[0].strip()
+                                    name_twitter.append(name)
+                                    break
+
+                    if (
+                        not twitter_links
+                        or "posts" in twitter_links[-1]
+                        or "/posts/" in twitter_links[-1]
+                    ):
+                        json_data.append(
+                            {
+                                "Name": ceo_name,
+                                "Company Name": company_name,
+                                "Keywords": keywords,
+                                "Twitter Profile": "No Twitter links found.",
+                            }
+                        )
+                    else:
+                        json_data.append(
+                            {
+                                "Name": ceo_name,
+                                "Company Name": company_name,
+                                "Keywords": keywords,
+                                "Twitter Profile": twitter_links[-1],
+                            }
+                        )
+        driver.quit()
+
+        json_file_path = "twitter_data.json"
         with open(json_file_path, "w") as json_file:
-            json.dump(twitter_data, json_file)
+            json.dump(json_data, json_file, indent=2)
 
-        # Convert the JSON data to an Excel sheet (optional)
-        output_sheet.append(["CEO Name", "Company Name", "Keywords", "Twitter Link","Job_title","Followers","Location"])
-        for entry in twitter_data:
-            output_sheet.append([entry["CEO Name"], entry["Company Name"], entry["Keywords"], entry["Twitter Link"],entry["Job_title"],entry["Followers"],entry["Location"]])
-
-        # Save the Excel workbook
-        excel_output_file_path = "output_twitter_file.xlsx"
-        output_workbook.save(excel_output_file_path)
-
-        status_label.config(text=f"Output saved to: {excel_output_file_path}")
-
-    except Exception as e:
-        status_label.config(text="Error occurred while processing the Excel file.")
-
-
-        
-
-def search_facebook_profile():
-    try:
-        # Load the input Excel file
-        input_file_path = file_entry.get()
-
-        # Open the input workbook and get the first sheet
-        input_workbook = openpyxl.load_workbook(input_file_path)
-        input_sheet = input_workbook.active
-
-        # Create a new workbook for the output file
+        # Save JSON data to Excel
+        excel_output_file_path = "output_twitter.xlsx"
         output_workbook = Workbook()
         output_sheet = output_workbook.active
+        output_sheet.append(
+            [
+                "Name",
+                "Company Name",
+                "Keywords",
+                "Twitter Profile",
+            ]
+        )
 
-        output_sheet.append(["CEO Name", "Company Name", "Keywords", "Results"])
+        for entry in json_data:
+            output_sheet.append(
+                [
+                    entry["Name"],
+                    entry["Company Name"],
+                    entry["Keywords"],
+                    entry["Twitter Profile"],
+                ]
+            )
 
-        facebook_data = []
-        # Loop through each row in the input sheet
-        for row in input_sheet.iter_rows(min_row=2, values_only=True):
+        output_workbook.save(excel_output_file_path)
+
+        status_label.config(
+            text=f"Output saved to: {excel_output_file_path} and {json_file_path}"
+        )
+
+    except Exception as e:
+        error_message = f"Error: {str(e)}"
+        status_label.config(text=error_message)
+
+
+def search_facebook_profile():
+    input_file_path = file_entry.get()
+    facebook_data = []
+
+    try:
+        # Export the data to a new Excel file
+        input_workbook = load_workbook(input_file_path, read_only=True)
+        input_sheet = input_workbook.active
+        driver = webdriver.Chrome()
+        driver.get("https://www.google.com")
+        time.sleep(5)
+        lan = driver.find_element(By.XPATH, "/html/body/div[1]/div[4]/div/div/a[1]")
+        if lan.text == "English":
+            driver.get(lan.get_attribute("href"))
+        # Create a list to store data in JSON format
+        json_data = []
+        i = 0
+
+        for row in input_sheet.iter_rows(min_row=3, values_only=True):
+            i = i + 1
+            print("{}".format(i))
             if any(cell_value is not None and cell_value != "" for cell_value in row):
                 ceo_name = row[0] if row[0] else ""
                 company_name = row[1] if row[1] else ""
                 keywords = row[2] if row[2] else ""
+                ceo_name = ""
+                while not ceo_name:
+                    query = f"{keywords} of {company_name} "
+                    query = query.replace(" ", "%20")
+                    search_url = f"https://www.google.com/search?q={query}"
+                    driver.get(search_url)
+                    time.sleep(5)
+                    soup = BeautifulSoup(driver.page_source, "html.parser")
+                    text = soup.get_text()
+                    element = driver.find_element(
+                        By.CSS_SELECTOR, "div.eqAnXb > div#search"
+                    )
+                    element_html = element.get_attribute("outerHTML")
+                    soup = BeautifulSoup(element_html, "html.parser")
+                    text = soup.get_text(strip=True)
+                    org = f"The {keywords} of ABCDXYX is Metraclac Kousier"
+                    response = g4f.ChatCompletion.create(
+                        model="gpt-3.5-turbo",
+                        provider=g4f.Provider.You,
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": f"I will give you a some text about a {keywords} of a company.This is the text :BEGIN: {text[:500]} :END. According the given text, your answer should be just the real {keywords} name,  your answer format answer will be :{org}, no more explain. ",
+                            }
+                        ],
+                        stream=True,
+                    )
 
-                query = f"{company_name} {ceo_name} {keywords} Facebook account"
-                query = query.replace(" ", "%20")
+                    for message in response:
+                        ceo_name += message
+                    # Using regular expression to extract the name after "is"
+                    ceo_name = "".join(ceo_name).replace("*", "")
+                    match = re.search(r'is\s+([^"]+)', ceo_name)
+                    if match:
+                        ceo_name = match.group(1)
+                    ceo_name = ceo_name[:-1] if ceo_name.endswith(".") else ceo_name
+                    nlp = spacy.load("en_core_web_sm")
+                    # Process the text with SpaCy
+                    doc = nlp(ceo_name)
+                    # Extract person names
+                    ceo_name = [ent.text for ent in doc.ents if ent.label_ == "PERSON"]
 
-                search_url = f"https://www.google.com/search?q={query}"
+                ceo_name = "".join(ceo_name).strip()
 
-                driver = webdriver.Chrome()
-                driver.get(search_url)
-                driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
-                page_source = driver.page_source
-                driver.quit()
+                if "not" in ceo_name:
+                    ceo_name = f"{keywords} not found"
+                    json_data.append(
+                        {
+                            "Name": ceo_name,
+                            "Company Name": company_name,
+                            "Keywords": keywords,
+                            "Facebook Profile": "No facebook links found.",
+                        }
+                    )
+                else:
+                    query = f"Facebook {ceo_name} {keywords} of {company_name}"
+                    query = query.replace(" ", "%20")
+                    search_url = f"https://www.google.com/search?q={query}"
+                    driver.get(search_url)
+                    time.sleep(5)
+                    # driver.find_element(By.TAG_NAME, "body").send_keys(Keys.END)
+                    facebook_links = []
+                    name_facebook = []
+                    search_results = driver.find_elements(
+                        By.CSS_SELECTOR, "div.v7W49e > div"
+                    )
+                    time.sleep(5)
+                    element = driver.find_element(
+                        By.CSS_SELECTOR, "div.eqAnXb > div#search"
+                    )
 
-                soup = BeautifulSoup(page_source, "html.parser")
-                search_results = soup.find_all('a', href=True)  # Find all anchor tags with href attribute
+                    # Get the HTML content of the element
+                    element_html = element.get_attribute("outerHTML")
+                    soup = BeautifulSoup(element_html, "html.parser")
+                    element_ = soup.find_all("div", jscontroller="SC7lYd")
+                    # Extract the text or HTML of the element
+                    if element_:
+                        for element in element_:
+                            # Or get the HTML of the element
+                            html_inside_element = (
+                                element.prettify()
+                            )  # This retains the HTML structure
+                            soup = BeautifulSoup(html_inside_element, "html.parser")
+                            a_tag = soup.find("a")  # Find the <a> tag
+                            if a_tag is not None:
+                                link = a_tag.get("href")
 
-                facebook_links = []  # Danh sách các liên kết Facebook cho từng dòng
+                            h3_tag = soup.find("h3")  # Find the <a> tag
+                            if h3_tag is not None:
+                                name = h3_tag.get_text()
+                                # Get the value of the href attribute
+                                # link = soup.find_all("a", href=True)[0]
+                                # print(len(link))
+                                # name = soup.find_all("h3").text
+                                # print(len(name))
 
-                for result in search_results:
-                    link = result['href']
-                    if 'facebook.com' in link and '/status/' not in link and 'translate' not in link and 'login' not in link and 'search' not in link and 'help' not in link and 'photos' not in link and 'events' not in link and 'groups' not in link:
-                        facebook_links.append(link)
+                                if (
+                                    "facebook.com" in link
+                                    and "/status/" not in link
+                                    and "/post/" not in link
+                                    and "/posts/" not in link
+                                    and "post" not in link
+                                    and "posts" not in link
+                                    and "story" not in link
+                                    and "news" not in link
+                                    and "job" not in link
+                                    and "today" not in link
+                                    and "author" not in link
+                                    and "pulse" not in link
+                                    and "company" not in link
+                                    and "text" not in link
+                                    and "translate" not in link
+                                    and "login" not in link
+                                    and "search" not in link
+                                    and any(word in name for word in ceo_name.split())
+                                ):
+                                    print(link, name)
+                                    facebook_links.append(link)
+                                    ceo_name = name.split("-")[0].strip()
+                                    name_facebook.append(name)
+                                    break
 
-                unique_facebook_links = list(set(facebook_links))
-                driver = webdriver.Chrome()
+                    if (
+                        not facebook_links
+                        or "posts" in facebook_links[-1]
+                        or "/posts/" in facebook_links[-1]
+                    ):
+                        json_data.append(
+                            {
+                                "Name": ceo_name,
+                                "Company Name": company_name,
+                                "Keywords": keywords,
+                                "Facebook Profile": "No Facebook links found.",
+                            }
+                        )
+                    else:
+                        json_data.append(
+                            {
+                                "Name": ceo_name,
+                                "Company Name": company_name,
+                                "Keywords": keywords,
+                                "Facebook Profile": facebook_links[-1],
+                            }
+                        )
+        driver.quit()
 
-                for facebook_link in unique_facebook_links:
-                    driver.get(facebook_link)
+        json_file_path = "facebook_data.json"
+        with open(json_file_path, "w") as json_file:
+            json.dump(json_data, json_file, indent=2)
 
-                    driver.implicitly_wait(10)
+        # Save JSON data to Excel
+        excel_output_file_path = "output_facebook.xlsx"
+        output_workbook = Workbook()
+        output_sheet = output_workbook.active
+        output_sheet.append(
+            [
+                "Name",
+                "Company Name",
+                "Keywords",
+                "Facebook Profile",
+            ]
+        )
 
-                    name_xpath = '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div/div/div[1]/div[2]/div/div/div/div[3]/div/div/div[1]/div/div/span/h1'
-                    try:
-                        name = driver.find_element(By.XPATH, name_xpath).text
-                    except:
-                        name = "N/A"
-                    
-                    location_xpath = '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div/div/div[4]/div[2]/div/div[1]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div/ul/div[2]/div[2]/div/span'
-                    try:
-                        location = driver.find_element(By.XPATH , location_xpath).text
-                    except:
-                        location = "N/A"
-                    
-                    number_xpath = '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div/div/div[4]/div[2]/div/div[1]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div/ul/div[3]/div[2]/div/div/span'
-                    try:
-                        number_phone = driver.find_element(By.XPATH , number_xpath).text
-                    except:
-                        number_phone = "N/A"
-                    email_xpath = '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div/div/div[4]/div[2]/div/div[1]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div/ul/div[4]/div[2]/div/div/span'
-                    try:
-                        email = driver.find_element(By.XPATH , email_xpath).text
-                    except:
-                        email = "N/A"
-                    followers_xpath = '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div/div/div[1]/div[2]/div/div/div/div[3]/div/div/div[2]/span/a[2]'
-                    try:
-                        followers = driver.find_element(By.XPATH , followers_xpath).text
-                    except:
-                        followers = "N/A"
-                    facebook_data.append({
-                        "Name":name,
-                        "Company Name": company_name,
-                        "Keywords": keywords,
-                        "Location":location,
-                        "Number Phone" :number_phone,
-                        "Email":email,
-                        "Followers":followers
-                    })
-                driver.quit()
-        json_file_path = "output_facebook.json"
-        with open(json_file_path , "w") as json_file:
-            json.dump(facebook_data , json_file)
-        
-        output_sheet.append(["Name" , "Company Name","Keywords","Location","Number Phone","Email","Followers"])
-        for entry in facebook_data:
-            output_sheet.append([entry["Name"] , entry["Company Name"],entry["Keywords"],entry["Location"],entry["Number Phone"],entry["Email"],entry["Followers"]])
-        excel_output_file = "output_facebook.xlsx"
-        output_workbook.save(excel_output_file)
-        status_label.config(text=f"Output Saved")
+        for entry in json_data:
+            output_sheet.append(
+                [
+                    entry["Name"],
+                    entry["Company Name"],
+                    entry["Keywords"],
+                    entry["Facebook Profile"],
+                ]
+            )
+
+        output_workbook.save(excel_output_file_path)
+
+        status_label.config(
+            text=f"Output saved to: {excel_output_file_path} and {json_file_path}"
+        )
 
     except Exception as e:
-        status_label.config(text="Error occurred while processing the Excel file.")
+        error_message = f"Error: {str(e)}"
+        status_label.config(text=error_message)
 
-                # Thêm danh sách liên kết Facebook vào dòng đầu ra
-                # if facebook_links:
-                #     for facebook_link in facebook_links:
-                #         output_sheet.append([ceo_name, company_name, keywords, facebook_link])
-                # else:
-                #     # Nếu không có liên kết Facebook, thêm một dòng với thông báo "No Facebook links found."
-                #     output_sheet.append([ceo_name, company_name, keywords, "No Facebook links found."])
-
-        # Save the output workbook with the Facebook profiles for each row
-    #     output_file_path = "output_facebook_file.xlsx"
-    #     output_workbook.save(output_file_path)
-    #     status_label.config(text=f"Output saved to: {output_file_path}")
-
-    # except Exception as e:
-    #     status_label.config(text="Error occurred while processing the Excel file.")
 
 def search_linkedin_profile():
     input_file_path = file_entry.get()
-    email = email_entry.get() 
-    password = password_entry.get()
     linkedin_data = []
 
     try:
-        driver = webdriver.Chrome()
-        driver.get("https://www.linkedin.com")
-
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "session_key")))
-        email_field = driver.find_element(By.ID, "session_key")
-        password_field = driver.find_element(By.ID, "session_password")
-        login_button = driver.find_element(By.CLASS_NAME, "sign-in-form__submit-btn--full-width")
-
-        email_field.send_keys(email)
-        password_field.send_keys(password)
-        login_button.click()
-
-        WebDriverWait(driver, 10).until(EC.title_contains("LinkedIn"))
-
+        # Export the data to a new Excel file
         input_workbook = load_workbook(input_file_path, read_only=True)
         input_sheet = input_workbook.active
-
+        driver = webdriver.Chrome()
+        driver.get("https://www.google.com")
+        time.sleep(5)
+        lan = driver.find_element(By.XPATH, "/html/body/div[1]/div[4]/div/div/a[1]")
+        if lan.text == "English":
+            driver.get(lan.get_attribute("href"))
         # Create a list to store data in JSON format
         json_data = []
+        i = 0
 
-        for row in input_sheet.iter_rows(min_row=2, values_only=True):
+        for row in input_sheet.iter_rows(min_row=3, values_only=True):
+            i = i + 1
+            print("{}".format(i))
             if any(cell_value is not None and cell_value != "" for cell_value in row):
                 ceo_name = row[0] if row[0] else ""
                 company_name = row[1] if row[1] else ""
                 keywords = row[2] if row[2] else ""
+                ceo_name = ""
+                while not ceo_name:
+                    query = f"{keywords} of {company_name} "
+                    query = query.replace(" ", "%20")
+                    search_url = f"https://www.google.com/search?q={query}"
+                    driver.get(search_url)
+                    time.sleep(5)
+                    soup = BeautifulSoup(driver.page_source, "html.parser")
+                    text = soup.get_text()
+                    element = driver.find_element(
+                        By.CSS_SELECTOR, "div.eqAnXb > div#search"
+                    )
+                    element_html = element.get_attribute("outerHTML")
+                    soup = BeautifulSoup(element_html, "html.parser")
+                    text = soup.get_text(strip=True)
+                    org = f"The {keywords} of ABCDXYX is Metraclac Kousier"
+                    response = g4f.ChatCompletion.create(
+                        model="gpt-3.5-turbo",
+                        provider=g4f.Provider.You,
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": f"I will give you a some text about a {keywords} of a company.This is the text :BEGIN: {text[:500]} :END. According the given text, your answer should be just the real {keywords} name,  your answer format answer will be :{org}, no more explain. ",
+                            }
+                        ],
+                        stream=True,
+                    )
 
-                query = f"{company_name} CEO {keywords} LinkedIn account"
-                query = query.replace(" ", "%20")
+                    for message in response:
+                        ceo_name += message
+                    # Using regular expression to extract the name after "is"
+                    ceo_name = "".join(ceo_name).replace("*", "")
+                    match = re.search(r'is\s+([^"]+)', ceo_name)
+                    if match:
+                        ceo_name = match.group(1)
+                    ceo_name = ceo_name[:-1] if ceo_name.endswith(".") else ceo_name
+                    nlp = spacy.load("en_core_web_sm")
+                    # Process the text with SpaCy
+                    doc = nlp(ceo_name)
+                    # Extract person names
+                    ceo_name = [ent.text for ent in doc.ents if ent.label_ == "PERSON"]
 
-                search_url = f"https://www.google.com/search?q={query}"
+                ceo_name = "".join(ceo_name).strip()
 
-                driver.get(search_url)
-                driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
-                page_source = driver.page_source
-
-                soup = BeautifulSoup(page_source, "html.parser")
-                search_results = soup.find_all('a', href=True)
-
-                linkedin_links = []
-
-                for result in search_results:
-                    link = result['href']
-                    if 'linkedin.com' in link and '/status/' not in link and 'translate' not in link and 'login' not in link and 'search' not in link:
-                        linkedin_links.append(link)
-
-                if linkedin_links:
-                    for linkedin_link in linkedin_links:
-                        driver.get(linkedin_link)
-                        driver.implicitly_wait(10)
-
-                        name_xpath = "/html/body/div[5]/div[3]/div/div/div[2]/div/div/main/section[1]/div[2]/div[2]/div[1]/div[1]/h1"
-                        try:
-                            name = driver.find_element(By.XPATH, name_xpath).text
-                        except:
-                            name = "N/A"
-                        job_xpath = '/html/body/div[5]/div[3]/div/div/div[2]/div/div/main/section[1]/div[2]/div[2]/div[1]/div[2]'
-                        try:
-                            job = driver.find_element(By.XPATH, job_xpath).text
-                        except:
-                            job = "N/A"
-                        connection_xpath = '/html/body/div[5]/div[3]/div/div/div[2]/div/div/main/section[1]/div[2]/ul/li[2]/span/span'
-                        try:
-                            connection = driver.find_element(By.XPATH, connection_xpath).text
-                        except:
-                            connection = "N/A"
-                        location_xpath = '/html/body/div[5]/div[3]/div/div/div[2]/div/div/main/section[1]/div[2]/div[2]/div[2]/span[1]'
-                        try:
-                            location = driver.find_element(By.XPATH, location_xpath).text
-                        except:
-                            location = "N/A"
-                        print(job,connection,location,name)
-                        json_data.append({
-                            "CEO Name": name,
+                if "not" in ceo_name:
+                    ceo_name = f"{keywords} not found"
+                    json_data.append(
+                        {
+                            "Name": ceo_name,
                             "Company Name": company_name,
                             "Keywords": keywords,
-                            "LinkedIn Profile": linkedin_link,
-                            "Job Title" : job,
-                            "Location": location,
-                            "Connection" :connection,
-                        })
+                            "LinkedIn Profile": "No LinkedIn links found.",
+                        }
+                    )
                 else:
-                    json_data.append({
-                        "CEO Name": ceo_name,
-                        "Company Name": company_name,
-                        "Keywords": keywords,
-                        "Job Title" : "NaN",
-                        "Connection" : "NaN",
-                        "Location": "NaN",
-                        "LinkedIn Profile": "No LinkedIn links found.",
-                    })
+                    query = f"Linkedin {ceo_name} {keywords} of {company_name}"
+                    query = query.replace(" ", "%20")
+                    search_url = f"https://www.google.com/search?q={query}"
+                    driver.get(search_url)
+                    time.sleep(5)
+                    driver.find_element(By.TAG_NAME, "body").send_keys(Keys.END)
+                    linkedin_links = []
+                    name_linkedin = []
+                    search_results = driver.find_elements(
+                        By.CSS_SELECTOR, "div.v7W49e > div"
+                    )
+                    time.sleep(5)
+                    element = driver.find_element(
+                        By.CSS_SELECTOR, "div.eqAnXb > div#search"
+                    )
 
-        # Save JSON data to a file
+                    # Get the HTML content of the element
+                    element_html = element.get_attribute("outerHTML")
+                    soup = BeautifulSoup(element_html, "html.parser")
+                    element_ = soup.find_all("div", jscontroller="SC7lYd")
+                    # Extract the text or HTML of the element
+                    if element_:
+                        for element in element_:
+                            # Or get the HTML of the element
+                            html_inside_element = (
+                                element.prettify()
+                            )  # This retains the HTML structure
+                            soup = BeautifulSoup(html_inside_element, "html.parser")
+                            a_tag = soup.find("a")  # Find the <a> tag
+                            if a_tag is not None:
+                                link = a_tag.get("href")
+
+                            h3_tag = soup.find("h3")  # Find the <a> tag
+                            if h3_tag is not None:
+                                name = h3_tag.get_text()
+                                # Get the value of the href attribute
+                                # link = soup.find_all("a", href=True)[0]
+                                # print(len(link))
+                                # name = soup.find_all("h3").text
+                                # print(len(name))
+
+                                if (
+                                    "linkedin.com" in link
+                                    and "/status/" not in link
+                                    and "/post/" not in link
+                                    and "/posts/" not in link
+                                    and "post" not in link
+                                    and "posts" not in link
+                                    and "story" not in link
+                                    and "news" not in link
+                                    and "job" not in link
+                                    and "today" not in link
+                                    and "author" not in link
+                                    and "pulse" not in link
+                                    and "company" not in link
+                                    and "text" not in link
+                                    and "translate" not in link
+                                    and "login" not in link
+                                    and "search" not in link
+                                    and any(word in name for word in ceo_name.split())
+                                ):
+                                    print(link, name)
+                                    linkedin_links.append(link)
+                                    ceo_name = name.split("-")[0].strip()
+                                    name_linkedin.append(name)
+                                    break
+
+                    if (
+                        not linkedin_links
+                        or "posts" in linkedin_links[-1]
+                        or "/posts/" in linkedin_links[-1]
+                    ):
+                        json_data.append(
+                            {
+                                "Name": ceo_name,
+                                "Company Name": company_name,
+                                "Keywords": keywords,
+                                "LinkedIn Profile": "No LinkedIn links found.",
+                            }
+                        )
+                    else:
+                        json_data.append(
+                            {
+                                "Name": ceo_name,
+                                "Company Name": company_name,
+                                "Keywords": keywords,
+                                "LinkedIn Profile": linkedin_links[-1],
+                            }
+                        )
+        driver.quit()
+
         json_file_path = "linkedin_data.json"
         with open(json_file_path, "w") as json_file:
             json.dump(json_data, json_file, indent=2)
@@ -379,19 +646,35 @@ def search_linkedin_profile():
         excel_output_file_path = "output_linkedin.xlsx"
         output_workbook = Workbook()
         output_sheet = output_workbook.active
-        output_sheet.append(["CEO Name", "Company Name", "Keywords", "Job Title","Connection","Location", "LinkedIn Profile"])
+        output_sheet.append(
+            [
+                "Name",
+                "Company Name",
+                "Keywords",
+                "LinkedIn Profile",
+            ]
+        )
 
         for entry in json_data:
-            output_sheet.append([entry["CEO Name"], entry["Company Name"], entry["Keywords"], entry["Job Title"],entry["Connection"],entry["Location"],entry["LinkedIn Profile"]])
+            output_sheet.append(
+                [
+                    entry["Name"],
+                    entry["Company Name"],
+                    entry["Keywords"],
+                    entry["LinkedIn Profile"],
+                ]
+            )
 
         output_workbook.save(excel_output_file_path)
-        driver.quit()
 
-        status_label.config(text=f"Output saved to: {excel_output_file_path} and {json_file_path}")
+        status_label.config(
+            text=f"Output saved to: {excel_output_file_path} and {json_file_path}"
+        )
 
     except Exception as e:
         error_message = f"Error: {str(e)}"
         status_label.config(text=error_message)
+
 
 root = tk.Tk()
 root.title("Find Social Media account")
@@ -409,42 +692,26 @@ file_entry.pack(side="left", padx=10, pady=5)
 
 file_button = tk.Button(file_frame, text="Browser", command=select_file)
 file_button.pack(side="left", padx=10, pady=5)
-
-
-
-
-# ... (Previous code remains unchanged)
-
-email_label = tk.Label(main_frame, text="Nhập account linkedin(Nếu dùng find linkedin):", font=("Arial", 12))
-email_label.pack(padx=10, pady=5)
-
-email_entry = tk.Entry(main_frame, width=40)
-email_entry.pack(padx=10, pady=5)
-
-password_label = tk.Label(main_frame, text="Nhập password linkedin(Nếu dùng find linkedin):", font=("Arial", 12))
-password_label.pack(padx=10, pady=5)
-
-password_entry = tk.Entry(main_frame, show="*", width=40)
-password_entry.pack(padx=10, pady=5)
-
-# ... (Rest of the code remains unchanged)
-
-
-
 # create the status label
 status_label = tk.Label(main_frame, text="", font=("Arial", 12))
 status_label.pack(pady=10)
 
 # create the send button
-send_button = tk.Button(main_frame, text="Find Twitter Account", command=search_twitter_profile)
+send_button = tk.Button(
+    main_frame, text="Find Twitter Account", command=search_twitter_profile
+)
 send_button.pack(pady=5)
 
 # create the send button
-send_button = tk.Button(main_frame, text="Find Facebook Account", command=search_facebook_profile)
+send_button = tk.Button(
+    main_frame, text="Find Facebook Account", command=search_facebook_profile
+)
 send_button.pack(pady=5)
 
 # create the send button
-send_button = tk.Button(main_frame, text="Find LinkedIn Account", command=search_linkedin_profile)
+send_button = tk.Button(
+    main_frame, text="Find LinkedIn Account", command=search_linkedin_profile
+)
 send_button.pack(pady=5)
 
 root.mainloop()
