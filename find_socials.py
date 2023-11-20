@@ -47,7 +47,7 @@ def search_twitter_profile():
         json_data = []
         i = 0
 
-        for row in input_sheet.iter_rows(min_row=3, values_only=True):
+        for row in input_sheet.iter_rows(min_row=2, values_only=True):
             i = i + 1
             print("{}".format(i))
 
@@ -92,17 +92,12 @@ def search_twitter_profile():
                         ],
                         stream=True,
                     )
-                    print(type(response))
 
-                    print("real")
                     for message in response:
                         ceo_name += message
-                    print("real")
                     # Using regular expression to extract the name after "is"
                     ceo_name = "".join(ceo_name).replace("*", "")
-                    print("real")
                     match = re.search(r'is\s+([^"]+)', ceo_name)
-                    print("real")
                     if match:
                         ceo_name = match.group(1)
 
@@ -276,7 +271,7 @@ def search_facebook_profile():
         json_data = []
         i = 0
 
-        for row in input_sheet.iter_rows(min_row=3, values_only=True):
+        for row in input_sheet.iter_rows(min_row=2, values_only=True):
             i = i + 1
             print("{}".format(i))
             if any(cell_value is not None and cell_value != "" for cell_value in row):
@@ -485,7 +480,7 @@ def search_linkedin_profile():
         json_data = []
         i = 0
 
-        for row in input_sheet.iter_rows(min_row=3, values_only=True):
+        for row in input_sheet.iter_rows(min_row=2, values_only=True):
             i = i + 1
             print("{}".format(i))
             if any(cell_value is not None and cell_value != "" for cell_value in row):
