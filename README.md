@@ -1,6 +1,5 @@
 # bot_find_socials
 Find Linkedin, Twitter and Facebook accounts.<br>
-Techical : Selenium, Python, gpt4free.<br>
 <strong>Hướng dẫn sử dụng :</strong><br>
 <strong>Tool là file <i>find_socials.exe</i> trong thư mục <code>dist</code>, hoặc có thể tải trực tiếp bằng link sau: <a href="https://drive.google.com/file/d/1-kV9hFJ5tVGTYHg9DHy_AA2ptanRiQga/view?usp=sharing">find_socials.exe</a></strong>, giải nén ra và chạy file exe không cần clone repo này về.
 <br>
