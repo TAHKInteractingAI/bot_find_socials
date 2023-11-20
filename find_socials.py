@@ -47,11 +47,10 @@ def search_twitter_profile():
         json_data = []
         i = 0
 
-        for row in input_sheet.iter_rows(min_row=3, values_only=True):
-            i = i + 1
-            print("{}".format(i))
-
+        for row in input_sheet.iter_rows(min_row=2, values_only=True):
             if any(cell_value is not None and cell_value != "" for cell_value in row):
+                i = i + 1
+                print("{}".format(i))
                 ceo_name = row[0] if row[0] else ""
 
                 company_name = row[1] if row[1] else ""
@@ -90,19 +89,12 @@ def search_twitter_profile():
                                 "content": f"I will give you a some text about a {keywords} of a company.This is the text :BEGIN: {text[:500]} :END. According the given text, your answer should be just the real {keywords} name,  your answer format answer will be :{org}, no more explain. ",
                             }
                         ],
-                        stream=True,
                     )
-                    print(type(response))
-
-                    print("real")
                     for message in response:
                         ceo_name += message
-                    print("real")
                     # Using regular expression to extract the name after "is"
                     ceo_name = "".join(ceo_name).replace("*", "")
-                    print("real")
                     match = re.search(r'is\s+([^"]+)', ceo_name)
-                    print("real")
                     if match:
                         ceo_name = match.group(1)
 
@@ -276,10 +268,10 @@ def search_facebook_profile():
         json_data = []
         i = 0
 
-        for row in input_sheet.iter_rows(min_row=3, values_only=True):
-            i = i + 1
-            print("{}".format(i))
+        for row in input_sheet.iter_rows(min_row=2, values_only=True):
             if any(cell_value is not None and cell_value != "" for cell_value in row):
+                i = i + 1
+                print("{}".format(i))
                 ceo_name = row[0] if row[0] else ""
                 company_name = row[1] if row[1] else ""
                 keywords = row[2] if row[2] else ""
@@ -485,10 +477,10 @@ def search_linkedin_profile():
         json_data = []
         i = 0
 
-        for row in input_sheet.iter_rows(min_row=3, values_only=True):
-            i = i + 1
-            print("{}".format(i))
+        for row in input_sheet.iter_rows(min_row=2, values_only=True):
             if any(cell_value is not None and cell_value != "" for cell_value in row):
+                i = i + 1
+                print("{}".format(i))
                 ceo_name = row[0] if row[0] else ""
                 company_name = row[1] if row[1] else ""
                 keywords = row[2] if row[2] else ""
@@ -517,7 +509,6 @@ def search_linkedin_profile():
                                 "content": f"I will give you a some text about a {keywords} of a company.This is the text :BEGIN: {text[:500]} :END. According the given text, your answer should be just the real {keywords} name,  your answer format answer will be :{org}, no more explain. ",
                             }
                         ],
-                        stream=True,
                     )
 
                     for message in response:
