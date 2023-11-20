@@ -1,10 +1,11 @@
 # bot_find_socials
 Find Linkedin, Twitter and Facebook accounts.<br>
-<<<<<<< HEAD Hướng dẫn cách sử dụng :<br>
-<strong>Tool là file <i>find_socials.exe</i> trong thư mục <code>dist</code>, hoặc có thể tải trực tiếp bằng <a href="https://drive.google.com/file/d/1WF5Olthd0qimgfHVq20MRG8B7ecHAlgF/view?usp=sharing">Link download </a></strong>
+Techical : Selenium, Python, gpt4free.<br>
+<strong>Hướng dẫn sử dụng :</strong><br>
+<strong>Tool là file <i>find_socials.exe</i> trong thư mục <code>dist</code>, hoặc có thể tải trực tiếp bằng link sau: <a href="https://drive.google.com/file/d/1-kV9hFJ5tVGTYHg9DHy_AA2ptanRiQga/view?usp=sharing">find_socials.exe</a></strong>, giải nén ra và chạy file exe không cần clone repo này về.
 <br>
 <br>
-- B1: Sử dụng file <b>input.xlsx</b> trong repo và chuẩn bị dữ liệu theo như file : cột Company Name add tên công ty cần tìm vào , cột Key Valuant add từ khóa tương ứng (Ở đây sử dụng "CEO") cần tìm vào : ví dụ: CEO,Founder. 
+- B1: Sử dụng file <b>input.xlsx</b> và chuẩn bị dữ liệu theo như file : cột Company Name add tên công ty cần tìm vào , cột Key Valuant add từ khóa tương ứng (Ở đây sử dụng "CEO") cần tìm vào : ví dụ: CEO, Founder. 
 
 ![image](https://github.com/TAHKInteractingAI/bot_find_socials/assets/79317931/f7ba4585-eb3c-4883-b097-68d5be580c57)
 
@@ -14,4 +15,4 @@ Find Linkedin, Twitter and Facebook accounts.<br>
 ![image](https://github.com/TAHKInteractingAI/bot_find_socials/assets/79317931/43478069-de03-4bdb-bf34-b37dc6155d15)
 
 <br>
-- B3: Chọn Browser để upload file excel đã chuẩn bị ở bước 1 lên tool, sau đó nhấn chọn Linkedin, Twitter, Facebook theo nhu cầu<br>
+- B3: Chọn Browser để upload file excel đã chuẩn bị ở bước 1 lên tool, sau đó nhấn chọn Linkedin, Twitter, Facebook theo nhu cầu, chờ tool chạy tự động<br>
