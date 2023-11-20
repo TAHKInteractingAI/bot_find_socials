@@ -90,6 +90,7 @@ def search_twitter_profile():
                             }
                         ],
                     )
+
                     for message in response:
                         ceo_name += message
                     # Using regular expression to extract the name after "is"
