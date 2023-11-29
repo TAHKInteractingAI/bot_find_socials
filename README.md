@@ -2,7 +2,7 @@
 Find Linkedin, Twitter and Facebook accounts.<br>
 Chạy bằng file .exe:<br>
 <strong>Hướng dẫn sử dụng :</strong><br>
-<strong>Tool là file <i>find_socials.exe</i> trong thư mục <code>dist</code>, hoặc có thể tải trực tiếp bằng link sau: <a href="https://drive.google.com/file/d/19o0lpbDUqbazQc6dlDOHam0cA-albBpT/view?usp=sharing">Windows</a>, <a href ="https://drive.google.com/file/d/1CmvE51ngNiqcubbs-Hb1v0qCS2_7xFYo/view?usp=sharing">Linux </a></strong>, , giải nén ra và chạy file exe không cần clone repo này về.
+<strong>Tool là file <i>find_socials.exe</i> trong thư mục <code>dist</code>, hoặc có thể tải trực tiếp bằng link sau: <a href="https://drive.google.com/file/d/19o0lpbDUqbazQc6dlDOHam0cA-albBpT/view?usp=sharing">Windows</a>, <a href ="https://drive.google.com/file/d/1CmvE51ngNiqcubbs-Hb1v0qCS2_7xFYo/view?usp=sharing">Linux </a></strong>, giải nén ra và chạy file exe không cần clone repo này về.
 <br>
 <br>
 - B1: Sử dụng file <b>input.xlsx</b> và chuẩn bị dữ liệu theo như file : cột Company Name add tên công ty cần tìm vào , cột Key Valuant add từ khóa tương ứng (Ở đây sử dụng "CEO") cần tìm vào : ví dụ: CEO, Founder. 
