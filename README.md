@@ -17,5 +17,5 @@ Chạy bằng file .exe:<br>
 <br>
 - B3: Chọn Browser để upload file excel đã chuẩn bị ở bước 1 lên tool, sau đó nhấn chọn Linkedin, Twitter, Facebook theo nhu cầu, chờ tool chạy tự động<br>
 Chạy bằng file .py (Có sẵn python>=3.10):<br>
-<code>pip install -r requirements.txt</code>
+<code>pip install -r requirements.txt</code><br>
 <code>python find_socials.py</code>
