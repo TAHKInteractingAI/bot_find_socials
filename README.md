@@ -19,3 +19,8 @@ Chạy bằng file .exe:<br>
 Chạy bằng file .py (Có sẵn python>=3.10):<br>
 <code>pip install -r requirements.txt</code><br>
 <code>python find_socials.py</code>
+
+Cách run tool trên server: mở terminal, chạy lên dưới
+---> cd Downloads
+---> source activate test
+---> python find_socials.py
