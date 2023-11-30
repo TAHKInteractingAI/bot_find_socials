@@ -116,7 +116,7 @@ def search_twitter_profile():
                             continue
 
                     # Using regular expression to extract the name after "is"
-                    ceo_name = "".join(check_).replace("*", "") 
+                    ceo_name = "".join(check_).replace("*", "")
                     print(ceo_name)
                     match = re.search(r'is\s+([^"]+)', ceo_name)
                     if match:
@@ -153,61 +153,52 @@ def search_twitter_profile():
                     name_twitter = []
                     time.sleep(5)
                     element = driver.find_element(
-                        By.CSS_SELECTOR, "div.eqAnXb > div#search"
+                        By.CSS_SELECTOR, "div.eqAnXb > div#search > div > div"
                     )
 
                     # Get the HTML content of the element
                     element_html = element.get_attribute("outerHTML")
-                    soup = BeautifulSoup(element_html, "html.parser")
-                    element_ = soup.find_all("span", jscontroller="msmzHf")
-                    # Extract the text or HTML of the element
-                    if element_:
-                        for element in element_:
-                            # Or get the HTML of the element
-                            html_inside_element = (
-                                element.prettify()
-                            )  # This retains the HTML structure
-                            soup = BeautifulSoup(html_inside_element, "html.parser")
-                            a_tag = soup.find("a")  # Find the <a> tag
-                            if a_tag is not None:
-                                link = a_tag.get("href")
 
-                            h3_tag = soup.find("h3")  # Find the <a> tag
-                            if h3_tag is not None:
-                                name = h3_tag.get_text()
-                                # Get the value of the href attribute
-                                # link = soup.find_all("a", href=True)[0]
-                                # print(len(link))
-                                # name = soup.find_all("h3").text
-                                # print(len(name))
-                                if (
-                                    "twitter.com" in link
-                                    and "/status/" not in link
-                                    and "/post/" not in link
-                                    and "/posts/" not in link
-                                    and "post" not in link
-                                    and "posts" not in link
-                                    and "story" not in link
-                                    and "news" not in link
-                                    and "job" not in link
-                                    and "today" not in link
-                                    and "author" not in link
-                                    and "pulse" not in link
-                                    and "company" not in link
-                                    and "text" not in link
-                                    and "translate" not in link
-                                    and "login" not in link
-                                    and "search" not in link
-                                    # and any(
-                                    #     word.lower() in name.lower()
-                                    #     for word in ceo_name.split()
-                                    # )
-                                ):
-                                    print(link, name)
-                                    twitter_links.append(link)
-                                    ceo_name = name.split("-")[0].strip()
-                                    name_twitter.append(name)
-                                    break
+                    soup = BeautifulSoup(element_html, "html.parser")
+                    # Extract href attributes
+
+                    # Extract href attributes
+                    # Extract the text or HTML of the element
+                    for link, name in zip(
+                        [
+                            str(tag.get("href")).split("?")[0]
+                            for tag in soup.find_all("a")
+                        ],
+                        [tag.text for tag in soup.find_all("h3")],
+                    ):
+                        # Or get the HTML of the element
+                        if (
+                            "twitter.com" in link
+                            and "/status/" not in link
+                            and "/post/" not in link
+                            and "/posts/" not in link
+                            and "post" not in link
+                            and "posts" not in link
+                            and "story" not in link
+                            and "news" not in link
+                            and "job" not in link
+                            and "today" not in link
+                            and "pulse" not in link
+                            and "company" not in link
+                            and "text" not in link
+                            and "translate" not in link
+                            and "login" not in link
+                            and "search" not in link
+                            # and any(
+                            #     word.lower() in name.lower()
+                            #     for word in ceo_name.split()
+                            # )
+                        ):
+                            print(link, name)
+                            twitter_links.append(link)
+                            ceo_name = name.split("-")[0].strip()
+                            name_twitter.append(name)
+                            break
                     if (
                         not twitter_links
                         or "posts" in twitter_links[-1]
@@ -385,55 +376,41 @@ def search_facebook_profile():
                     # Get the HTML content of the element
                     element_html = element.get_attribute("outerHTML")
                     soup = BeautifulSoup(element_html, "html.parser")
-                    element_ = soup.find_all("span", jscontroller="msmzHf")
-                    # Extract the text or HTML of the element
-                    if element_:
-                        for element in element_:
-                            # Or get the HTML of the element
-                            html_inside_element = (
-                                element.prettify()
-                            )  # This retains the HTML structure
-                            soup = BeautifulSoup(html_inside_element, "html.parser")
-                            a_tag = soup.find("a")  # Find the <a> tag
-                            if a_tag is not None:
-                                link = a_tag.get("href")
-
-                            h3_tag = soup.find("h3")  # Find the <a> tag
-                            if h3_tag is not None:
-                                name = h3_tag.get_text()
-                                # Get the value of the href attribute
-                                # link = soup.find_all("a", href=True)[0]
-                                # print(len(link))
-                                # name = soup.find_all("h3").text
-                                # print(len(name))
-                                if (
-                                    "facebook.com" in link
-                                    and "/status/" not in link
-                                    and "/post/" not in link
-                                    and "/posts/" not in link
-                                    and "post" not in link
-                                    and "posts" not in link
-                                    and "story" not in link
-                                    and "news" not in link
-                                    and "job" not in link
-                                    and "today" not in link
-                                    and "author" not in link
-                                    and "pulse" not in link
-                                    and "company" not in link
-                                    and "text" not in link
-                                    and "translate" not in link
-                                    and "login" not in link
-                                    and "search" not in link
-                                    # and any(
-                                    #     word.lower() in name.lower()
-                                    #     for word in ceo_name.split()
-                                    # )
-                                ):
-                                    print(link, name)
-                                    facebook_links.append(link)
-                                    ceo_name = name.split("-")[0].strip()
-                                    name_facebook.append(name)
-                                    break
+                    for link, name in zip(
+                        [
+                            str(tag.get("href")).split("?")[0]
+                            for tag in soup.find_all("a")
+                        ],
+                        [tag.text for tag in soup.find_all("h3")],
+                    ):
+                        # Or get the HTML of the element
+                        if (
+                            "facebook.com" in link
+                            and "/status/" not in link
+                            and "/post/" not in link
+                            and "/posts/" not in link
+                            and "post" not in link
+                            and "posts" not in link
+                            and "story" not in link
+                            and "news" not in link
+                            and "job" not in link
+                            and "today" not in link
+                            and "pulse" not in link
+                            and "company" not in link
+                            and "text" not in link
+                            and "translate" not in link
+                            and "login" not in link
+                            and "search" not in link
+                            # and any(
+                            #     word.lower() in name.lower()
+                            #     for word in ceo_name.split()
+                            # )
+                        ):
+                            print(link, name)
+                            facebook_links.append(link)
+                            ceo_name = name.split("-")[0].strip()
+                            name_facebook.append(name)
+                            break
                     if (
                         not facebook_links
                         or "posts" in facebook_links[-1]
@@ -615,55 +592,41 @@ def search_linkedin_profile():
                     # Get the HTML content of the element
                     element_html = element.get_attribute("outerHTML")
                     soup = BeautifulSoup(element_html, "html.parser")
-                    element_ = soup.find_all("span", jscontroller="msmzHf")
-                    # Extract the text or HTML of the element
-                    if element_:
-                        for element in element_:
-                            # Or get the HTML of the element
-                            html_inside_element = (
-                                element.prettify()
-                            )  # This retains the HTML structure
-                            soup = BeautifulSoup(html_inside_element, "html.parser")
-                            a_tag = soup.find("a")  # Find the <a> tag
-                            if a_tag is not None:
-                                link = a_tag.get("href")
-
-                            h3_tag = soup.find("h3")  # Find the <a> tag
-                            if h3_tag is not None:
-                                name = h3_tag.get_text()
-                                # Get the value of the href attribute
-                                # link = soup.find_all("a", href=True)[0]
-                                # print(len(link))
-                                # name = soup.find_all("h3").text
-                                # print(len(name))
-                                if (
-                                    "linkedin.com" in link
-                                    and "/status/" not in link
-                                    and "/post/" not in link
-                                    and "/posts/" not in link
-                                    and "post" not in link
-                                    and "posts" not in link
-                                    and "story" not in link
-                                    and "news" not in link
-                                    and "job" not in link
-                                    and "today" not in link
-                                    and "author" not in link
-                                    and "pulse" not in link
-                                    and "company" not in link
-                                    and "text" not in link
-                                    and "translate" not in link
-                                    and "login" not in link
-                                    and "search" not in link
-                                    # and any(
-                                    #     word.lower() in name.lower()
-                                    #     for word in ceo_name.split()
-                                    # )
-                                ):
-                                    print(link, name)
-                                    linkedin_links.append(link)
-                                    ceo_name = name.split("-")[0].strip()
-                                    name_linkedin.append(name)
-                                    break
+                    for link, name in zip(
+                        [
+                            str(tag.get("href")).split("?")[0]
+                            for tag in soup.find_all("a")
+                        ],
+                        [tag.text for tag in soup.find_all("h3")],
+                    ):
+                        # Or get the HTML of the element
+                        if (
+                            "facebook.com" in link
+                            and "/status/" not in link
+                            and "/post/" not in link
+                            and "/posts/" not in link
+                            and "post" not in link
+                            and "posts" not in link
+                            and "story" not in link
+                            and "news" not in link
+                            and "job" not in link
+                            and "today" not in link
+                            and "pulse" not in link
+                            and "company" not in link
+                            and "text" not in link
+                            and "translate" not in link
+                            and "login" not in link
+                            and "search" not in link
+                            # and any(
+                            #     word.lower() in name.lower()
+                            #     for word in ceo_name.split()
+                            # )
+                        ):
+                            print(link, name)
+                            linkedin_links.append(link)
+                            ceo_name = name.split("-")[0].strip()
+                            name_linkedin.append(name)
+                            break
                     if (
                         not linkedin_links
                         or "posts" in linkedin_links[-1]
