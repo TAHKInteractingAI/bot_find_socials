@@ -22,7 +22,7 @@ Chạy bằng file .py (Có sẵn python>=3.10):<br>
 
 
 Cách run tool trên server qtdata: mở terminal, chạy lần lượt các lệnh sau:
-<code>cd Downloads</code>
-<code>source activate test</code> 
-<code>python find_socials.py</code>
+<code>cd Downloads</code><br>
+<code>source activate test</code> <br>
+<code>python find_socials.py</code><br>
 
