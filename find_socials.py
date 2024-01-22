@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import filedialog
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from openpyxl import Workbook, load_workbook
 from bs4 import BeautifulSoup
@@ -16,21 +18,30 @@ g4f.debug.logging = True  # Enable logging
 g4f.check_version = False  # Disable automatic version checking
 import re
 import spacy
-from g4f import Provider
-
-attributes = dir(Provider)
-
-# Filter out only methods
-methods = [
-    attribute for attribute in attributes if callable(getattr(Provider, attribute))
-]
-
-# Filter out only methods starting with an uppercase letter (assumption: your methods start with an uppercase letter)
-method_names = [method for method in methods if method[0].isupper()]
 
 # Create a list of method references
-method_references = [getattr(Provider, method) for method in method_names]
+providers = [
+    g4f.Provider.ChatBase,
+    g4f.Provider.Bard,
+    g4f.Provider.Aichat,
+    g4f.Provider.AiChatOnline,
+    g4f.Provider.Aura,
+    g4f.Provider.GptForLove,
+    g4f.Provider.Hashnode,
+    g4f.Provider.GeminiProChat,
+    g4f.Provider.ChatForAi,
+    g4f.Provider.ChatgptAi,
+    g4f.Provider.Gpt6,
+    g4f.Provider.GptGo,
+    g4f.Provider.You,
+    g4f.Provider.Yqcloud,
+]
 
+providers = [provider for provider in providers if provider.working]
+
+# Show all providers of g4f, need to see another providers? Let's run and take a look in terminal
+print([provider.__name__ for provider in providers])
+print([provider.__name__ for provider in g4f.Provider.__providers__ if provider.working])
 
 def clean_input(input_str):
     # Loại bỏ các ký tự đặc biệt, chỉ giữ lại ký tự chữ cái và dấu cách
@@ -46,7 +57,6 @@ def select_file():
 
 def search_twitter_profile():
     input_file_path = file_entry.get()
-    twitter_data = []
 
     try:
         # Export the data to a new Excel file
@@ -54,18 +64,18 @@ def search_twitter_profile():
         input_sheet = input_workbook.active
         driver = webdriver.Chrome()
         driver.get("https://www.google.com")
-        time.sleep(5)
-        lan = driver.find_element(By.XPATH, "/html/body/div[1]/div[4]/div/div/a[1]")
+        lan = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div[4]/div/div/a[1]"))
+        )
         if lan.text == "English":
+            #goto google language = english
             driver.get(lan.get_attribute("href"))
         # Create a list to store data in JSON format
         json_data = []
-        i = 0
 
-        for row in input_sheet.iter_rows(min_row=2, values_only=True):
+        for index, row in enumerate(input_sheet.iter_rows(min_row=2, values_only=True)):
             if any(cell_value is not None and cell_value != "" for cell_value in row):
-                i = i + 1
-                print(f"{i}")
+                print(f"{index}")
                 ceo_name = row[0] if row[0] else ""
                 company_name = row[1] if row[1] else ""
                 keywords = row[2] if row[2] else ""
@@ -87,16 +97,17 @@ def search_twitter_profile():
                     text = soup.get_text(strip=True)
                     org = f"The {keywords} of Company A is B"
                     check_ = ""
-                    for _ in method_references:
+                    for provider in providers:
                         check_ = ""
                         try:
+                            content = f"I will give you a some text about a {keywords} of a company. This is the text :BEGIN: {text[:500]} :END. According the given text, your answer should be just the real {keywords} name,  your answer format answer will be :{org}, no more explain. "
                             response = g4f.ChatCompletion.create(
                                 model="gpt-3.5-turbo",
-                                provider=_,
+                                provider=provider,
                                 messages=[
                                     {
                                         "role": "user",
-                                        "content": f"I will give you a some text about a {keywords} of a company.This is the text :BEGIN: {text[:500]} :END. According the given text, your answer should be just the real {keywords} name,  your answer format answer will be :{org}, no more explain. ",
+                                        "content": content,
                                     }
                                 ],
                             )
@@ -263,7 +274,6 @@ def search_twitter_profile():
 
 def search_facebook_profile():
     input_file_path = file_entry.get()
-    facebook_data = []
 
     try:
         # Export the data to a new Excel file
@@ -277,12 +287,10 @@ def search_facebook_profile():
             driver.get(lan.get_attribute("href"))
         # Create a list to store data in JSON format
         json_data = []
-        i = 0
 
-        for row in input_sheet.iter_rows(min_row=2, values_only=True):
+        for index, row in enumerate(input_sheet.iter_rows(min_row=2, values_only=True)):
             if any(cell_value is not None and cell_value != "" for cell_value in row):
-                i = i + 1
-                print(f"{i}")
+                print(f"{index}")
                 ceo_name = row[0] if row[0] else ""
                 company_name = row[1] if row[1] else ""
                 keywords = row[2] if row[2] else ""
@@ -304,12 +312,12 @@ def search_facebook_profile():
                     text = soup.get_text(strip=True)
                     org = f"The {keywords} of Company A is B"
                     check_ = ""
-                    for _ in method_references:
+                    for provider in providers:
                         check_ = ""
                         try:
                             response = g4f.ChatCompletion.create(
                                 model="gpt-3.5-turbo",
-                                provider=_,
+                                provider=provider,
                                 messages=[
                                     {
                                         "role": "user",
@@ -479,7 +487,6 @@ def search_facebook_profile():
 
 def search_linkedin_profile():
     input_file_path = file_entry.get()
-    linkedin_data = []
 
     try:
         # Export the data to a new Excel file
@@ -493,12 +500,10 @@ def search_linkedin_profile():
             driver.get(lan.get_attribute("href"))
         # Create a list to store data in JSON format
         json_data = []
-        i = 0
-
-        for row in input_sheet.iter_rows(min_row=2, values_only=True):
+        
+        for index, row in enumerate(input_sheet.iter_rows(min_row=2, values_only=True)):
             if any(cell_value is not None and cell_value != "" for cell_value in row):
-                i = i + 1
-                print(f"{i}")
+                print(f"{index}")
                 ceo_name = row[0] if row[0] else ""
                 company_name = row[1] if row[1] else ""
                 keywords = row[2] if row[2] else ""
@@ -520,12 +525,12 @@ def search_linkedin_profile():
                     text = soup.get_text(strip=True)
                     org = f"The {keywords} of Company A is B"
                     check_ = ""
-                    for _ in method_references:
+                    for provider in providers:
                         check_ = ""
                         try:
                             response = g4f.ChatCompletion.create(
                                 model="gpt-3.5-turbo",
-                                provider=_,
+                                provider=provider,
                                 messages=[
                                     {
                                         "role": "user",
@@ -601,7 +606,7 @@ def search_linkedin_profile():
                     ):
                         # Or get the HTML of the element
                         if (
-                            "facebook.com" in link
+                            "linkedin.com" in link
                             and "/status/" not in link
                             and "/post/" not in link
                             and "/posts/" not in link
